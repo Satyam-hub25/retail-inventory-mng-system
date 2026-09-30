@@ -36,11 +36,10 @@ export class Orders implements OnInit {
     this.loading = true;
     this.error = '';
     this.orderService.getAll().subscribe({
-      next: (data) => { this.orders = data; this.loading = false; },
+      next: (data) => { this.orders = data; this.loading = false; this.cdr.detectChanges(); },
       error: (err) => {
         this.error = 'Failed to load orders.';
-        this.loading = false;
-        this.toast.error(this.error);
+        this.loading = false; this.cdr.detectChanges(); this.toast.error(this.error);
       }
     });
   }
@@ -49,19 +48,16 @@ export class Orders implements OnInit {
     this.editingOrder = null;
     this.formData = { customerId: null, orderDate: new Date().toISOString().slice(0,10), status: 'PENDING', totalAmount: 0 };
     this.formError = '';
-    this.showForm = true;
-  }
+    this.showForm = true; this.cdr.detectChanges(); }
 
   editOrder(order: any) {
     this.editingOrder = order;
     this.formData = { ...order };
     this.formError = '';
-    this.showForm = true;
-  }
+    this.showForm = true; this.cdr.detectChanges(); }
 
   closeForm() {
-    this.showForm = false;
-    this.editingOrder = null;
+    this.showForm = false; this.cdr.detectChanges(); this.editingOrder = null;
     this.formError = '';
   }
 
@@ -77,25 +73,20 @@ export class Orders implements OnInit {
         this.toast.success(this.editingOrder ? 'Order updated!' : 'Order created!');
         this.loadOrders();
         this.closeForm();
-        this.saving = false;
-      },
+        this.saving = false; this.cdr.detectChanges(); },
       error: (err) => {
         this.formError = err.error?.message || 'Failed to save order.';
         this.toast.error(this.formError);
-        this.saving = false;
-      }
+        this.saving = false; this.cdr.detectChanges(); }
     });
   }
 
   confirmDelete(order: any) {
     this.deleteTarget = order;
-    this.deleteConfirming = true;
-  }
+    this.deleteConfirming = true; this.cdr.detectChanges(); }
 
   cancelDelete() {
-    this.deleteTarget = null;
-    this.deleteConfirming = false;
-  }
+    this.deleteTarget = null; this.cdr.detectChanges(); this.deleteConfirming = false; this.cdr.detectChanges(); }
 
   executeDelete() {
     if (!this.deleteTarget) return;

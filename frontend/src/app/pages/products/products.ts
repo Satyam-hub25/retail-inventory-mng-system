@@ -40,17 +40,13 @@ export class Products implements OnInit {
     this.productService.getAll().subscribe({
       next: (data) => { 
         this.products = data; 
-        this.loading = false; 
-        this.cdr.detectChanges();
-      },
+        this.loading = false; this.cdr.detectChanges(); },
       error: (err) => {
         this.error = err.status === 401 ? 'Session expired. Please log in again.'
                    : err.status === 403 ? 'You do not have permission to view products.'
                    : err.status === 0   ? 'Cannot reach server. Check your connection.'
                    : 'Failed to load products.';
-        this.loading = false;
-        this.cdr.detectChanges();
-        this.toast.error(this.error);
+        this.loading = false; this.cdr.detectChanges(); this.toast.error(this.error);
       }
     });
   }
@@ -59,24 +55,18 @@ export class Products implements OnInit {
     this.editingProduct = null;
     this.formData = { name: '', description: '', sku: '', price: 0, quantity: 0 };
     this.formError = '';
-    this.showForm = true;
-    this.cdr.detectChanges();
-  }
+    this.showForm = true; this.cdr.detectChanges(); }
 
   editProduct(product: any) {
     this.editingProduct = product;
     this.formData = { ...product };
     this.formError = '';
-    this.showForm = true;
-    this.cdr.detectChanges();
-  }
+    this.showForm = true; this.cdr.detectChanges(); }
 
   closeForm() {
-    this.showForm = false;
-    this.editingProduct = null;
+    this.showForm = false; this.cdr.detectChanges(); this.editingProduct = null;
     this.formError = '';
-    this.cdr.detectChanges();
-  }
+    this.cdr.detectChanges(); }
 
   validateForm(): string {
     if (!this.formData.name?.trim()) return 'Product name is required.';
@@ -101,47 +91,39 @@ export class Products implements OnInit {
         this.toast.success(this.editingProduct ? 'Product updated successfully!' : 'Product created successfully!');
         this.loadProducts();
         this.closeForm();
-        this.saving = false;
-      },
+        this.saving = false; this.cdr.detectChanges(); },
       error: (err) => {
         this.formError = err.status === 409 ? 'A product with this SKU already exists.'
                        : err.status === 403 ? 'You do not have permission to do this.'
                        : err.status === 400 ? 'Invalid data. Please check your inputs.'
                        : err.error?.message || 'Failed to save product.';
         this.toast.error(this.formError);
-        this.saving = false;
-      }
+        this.saving = false; this.cdr.detectChanges(); }
     });
   }
 
   confirmDelete(product: any) {
     this.deleteTarget = product;
-    this.deleteConfirming = true;
-  }
+    this.deleteConfirming = true; this.cdr.detectChanges(); }
 
   cancelDelete() {
-    this.deleteTarget = null;
-    this.deleteConfirming = false;
-  }
+    this.deleteTarget = null; this.cdr.detectChanges(); this.deleteConfirming = false; this.cdr.detectChanges(); }
 
   executeDelete() {
     if (!this.deleteTarget) return;
     const id = this.deleteTarget.id;
     const name = this.deleteTarget.name;
-    this.deleteConfirming = false;
-    this.productService.delete(id).subscribe({
+    this.deleteConfirming = false; this.cdr.detectChanges(); this.productService.delete(id).subscribe({
       next: () => {
         this.toast.success(`"${name}" deleted successfully.`);
         this.loadProducts();
-        this.deleteTarget = null;
-      },
+        this.deleteTarget = null; this.cdr.detectChanges(); },
       error: (err) => {
         const msg = err.status === 403 ? 'You do not have permission to delete this product.'
                   : err.status === 404 ? 'Product not found — it may have already been deleted.'
                   : 'Failed to delete product.';
         this.toast.error(msg);
-        this.deleteTarget = null;
-      }
+        this.deleteTarget = null; this.cdr.detectChanges(); }
     });
   }
 }

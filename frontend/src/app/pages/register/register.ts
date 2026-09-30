@@ -66,8 +66,7 @@ export class Register {
                   : err.status === 0   ? 'Cannot reach server. Check your connection.'
                   : err.error?.message || 'Registration failed. Please try again.';
         this.toast.error(msg);
-        this.loading = false;
-      }
+        this.loading = false; this.cdr.detectChanges(); }
     });
   }
 }

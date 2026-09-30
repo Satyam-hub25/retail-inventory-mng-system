@@ -29,11 +29,10 @@ export class StockMovements implements OnInit {
     this.loading = true;
     this.error = '';
     this.movementService.getAll().subscribe({
-      next: (data) => { this.movements = data; this.loading = false; },
+      next: (data) => { this.movements = data; this.loading = false; this.cdr.detectChanges(); },
       error: (err) => {
         this.error = 'Failed to load stock movements.';
-        this.loading = false;
-        this.toast.error(this.error);
+        this.loading = false; this.cdr.detectChanges(); this.toast.error(this.error);
       }
     });
   }
@@ -41,12 +40,10 @@ export class StockMovements implements OnInit {
   openAddForm() {
     this.formData = { productId: null, warehouseId: null, movementType: 'IN', quantity: 1, reason: '' };
     this.formError = '';
-    this.showForm = true;
-  }
+    this.showForm = true; this.cdr.detectChanges(); }
 
   closeForm() {
-    this.showForm = false;
-    this.formError = '';
+    this.showForm = false; this.cdr.detectChanges(); this.formError = '';
   }
 
   saveMovement() {
@@ -58,13 +55,11 @@ export class StockMovements implements OnInit {
         this.toast.success('Stock movement recorded successfully!');
         this.loadMovements();
         this.closeForm();
-        this.saving = false;
-      },
+        this.saving = false; this.cdr.detectChanges(); },
       error: (err) => {
         this.formError = err.error?.message || 'Failed to record stock movement.';
         this.toast.error(this.formError);
-        this.saving = false;
-      }
+        this.saving = false; this.cdr.detectChanges(); }
     });
   }
 }

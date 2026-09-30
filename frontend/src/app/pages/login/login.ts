@@ -58,8 +58,7 @@ export class Login {
                   : err.status === 0   ? 'Cannot reach server. Check your connection.'
                   : err.error?.message || 'Login failed. Please try again.';
         this.toast.error(msg);
-        this.loading = false;
-      }
+        this.loading = false; this.cdr.detectChanges(); }
     });
   }
 }

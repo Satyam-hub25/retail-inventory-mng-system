@@ -36,14 +36,13 @@ export class Inventory implements OnInit {
     this.loading = true;
     this.error = '';
     this.inventoryService.getAll().subscribe({
-      next: (data) => { this.inventoryItems = data; this.loading = false; },
+      next: (data) => { this.inventoryItems = data; this.loading = false; this.cdr.detectChanges(); },
       error: (err) => {
         this.error = err.status === 401 ? 'Session expired. Please log in again.'
                    : err.status === 403 ? 'You do not have permission to view inventory.'
                    : err.status === 0   ? 'Cannot reach server. Check your connection.'
                    : 'Failed to load inventory.';
-        this.loading = false;
-        this.toast.error(this.error);
+        this.loading = false; this.cdr.detectChanges(); this.toast.error(this.error);
       }
     });
   }
@@ -52,19 +51,16 @@ export class Inventory implements OnInit {
     this.editingInventory = null;
     this.formData = { productId: null, warehouseId: null, quantity: 0 };
     this.formError = '';
-    this.showForm = true;
-  }
+    this.showForm = true; this.cdr.detectChanges(); }
 
   editInventory(item: any) {
     this.editingInventory = item;
     this.formData = { ...item };
     this.formError = '';
-    this.showForm = true;
-  }
+    this.showForm = true; this.cdr.detectChanges(); }
 
   closeForm() {
-    this.showForm = false;
-    this.editingInventory = null;
+    this.showForm = false; this.cdr.detectChanges(); this.editingInventory = null;
     this.formError = '';
   }
 
@@ -90,45 +86,37 @@ export class Inventory implements OnInit {
         this.toast.success(this.editingInventory ? 'Inventory updated successfully!' : 'Inventory created successfully!');
         this.loadInventory();
         this.closeForm();
-        this.saving = false;
-      },
+        this.saving = false; this.cdr.detectChanges(); },
       error: (err) => {
         this.formError = err.status === 403 ? 'You do not have permission to do this.'
                        : err.status === 400 ? 'Invalid data. Please check your inputs.'
                        : err.error?.message || 'Failed to save inventory.';
         this.toast.error(this.formError);
-        this.saving = false;
-      }
+        this.saving = false; this.cdr.detectChanges(); }
     });
   }
 
   confirmDelete(item: any) {
     this.deleteTarget = item;
-    this.deleteConfirming = true;
-  }
+    this.deleteConfirming = true; this.cdr.detectChanges(); }
 
   cancelDelete() {
-    this.deleteTarget = null;
-    this.deleteConfirming = false;
-  }
+    this.deleteTarget = null; this.cdr.detectChanges(); this.deleteConfirming = false; this.cdr.detectChanges(); }
 
   executeDelete() {
     if (!this.deleteTarget) return;
     const id = this.deleteTarget.id;
-    this.deleteConfirming = false;
-    this.inventoryService.delete(id).subscribe({
+    this.deleteConfirming = false; this.cdr.detectChanges(); this.inventoryService.delete(id).subscribe({
       next: () => {
         this.toast.success(`Inventory record deleted successfully.`);
         this.loadInventory();
-        this.deleteTarget = null;
-      },
+        this.deleteTarget = null; this.cdr.detectChanges(); },
       error: (err) => {
         const msg = err.status === 403 ? 'You do not have permission to delete this inventory record.'
                   : err.status === 404 ? 'Inventory record not found — it may have already been deleted.'
                   : 'Failed to delete inventory record.';
         this.toast.error(msg);
-        this.deleteTarget = null;
-      }
+        this.deleteTarget = null; this.cdr.detectChanges(); }
     });
   }
 }

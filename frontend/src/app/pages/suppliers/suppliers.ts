@@ -33,11 +33,10 @@ export class Suppliers implements OnInit {
     this.loading = true;
     this.error = '';
     this.supplierService.getAll().subscribe({
-      next: (data) => { this.suppliers = data; this.loading = false; },
+      next: (data) => { this.suppliers = data; this.loading = false; this.cdr.detectChanges(); },
       error: (err) => {
         this.error = 'Failed to load suppliers.';
-        this.loading = false;
-        this.toast.error(this.error);
+        this.loading = false; this.cdr.detectChanges(); this.toast.error(this.error);
       }
     });
   }
@@ -46,19 +45,16 @@ export class Suppliers implements OnInit {
     this.editingSupplier = null;
     this.formData = { name: '', contactEmail: '', contactPhone: '', address: '' };
     this.formError = '';
-    this.showForm = true;
-  }
+    this.showForm = true; this.cdr.detectChanges(); }
 
   editSupplier(supplier: any) {
     this.editingSupplier = supplier;
     this.formData = { ...supplier };
     this.formError = '';
-    this.showForm = true;
-  }
+    this.showForm = true; this.cdr.detectChanges(); }
 
   closeForm() {
-    this.showForm = false;
-    this.editingSupplier = null;
+    this.showForm = false; this.cdr.detectChanges(); this.editingSupplier = null;
     this.formError = '';
   }
 
@@ -74,25 +70,20 @@ export class Suppliers implements OnInit {
         this.toast.success(this.editingSupplier ? 'Supplier updated!' : 'Supplier created!');
         this.loadSuppliers();
         this.closeForm();
-        this.saving = false;
-      },
+        this.saving = false; this.cdr.detectChanges(); },
       error: (err) => {
         this.formError = err.error?.message || 'Failed to save supplier.';
         this.toast.error(this.formError);
-        this.saving = false;
-      }
+        this.saving = false; this.cdr.detectChanges(); }
     });
   }
 
   confirmDelete(supplier: any) {
     this.deleteTarget = supplier;
-    this.deleteConfirming = true;
-  }
+    this.deleteConfirming = true; this.cdr.detectChanges(); }
 
   cancelDelete() {
-    this.deleteTarget = null;
-    this.deleteConfirming = false;
-  }
+    this.deleteTarget = null; this.cdr.detectChanges(); this.deleteConfirming = false; this.cdr.detectChanges(); }
 
   executeDelete() {
     if (!this.deleteTarget) return;

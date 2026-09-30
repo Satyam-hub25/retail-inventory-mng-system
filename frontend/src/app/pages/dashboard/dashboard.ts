@@ -48,13 +48,11 @@ export class Dashboard implements OnInit {
         this.stats = data;
         // Check if there is actual data, else show empty state
         this.hasData = data.totalProducts > 0 || data.totalSuppliers > 0 || data.totalCategories > 0;
-        this.loading = false;
-        this.cdr.detectChanges(); // Ensure UI updates
+        this.loading = false; this.cdr.detectChanges(); // Ensure UI updates
       },
       error: (err) => {
         this.error = 'Failed to load dashboard statistics.';
-        this.loading = false;
-        this.cdr.detectChanges(); // Ensure UI updates
+        this.loading = false; this.cdr.detectChanges(); // Ensure UI updates
       }
     });
   }
