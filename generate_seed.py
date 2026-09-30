@@ -76,7 +76,7 @@ for p in products:
     for w in warehouses:
         qty = random.randint(10, 150)
         if random.random() < 0.2: qty = random.randint(0, 10) # low stock
-        sql.append(f"INSERT INTO inventory (product_id, warehouse_id, quantity, last_updated) VALUES ((SELECT id FROM products WHERE sku='{p[1]}'), (SELECT id FROM warehouses WHERE name='{w[0]}'), {qty}, CURRENT_TIMESTAMP);")
+        sql.append(f"INSERT INTO inventory (product_id, warehouse_id, quantity, reorder_level) VALUES ((SELECT id FROM products WHERE sku='{p[1]}'), (SELECT id FROM warehouses WHERE name='{w[0]}'), {qty}, 15);")
         
         # Initial Stock Movement
         sql.append(f"INSERT INTO stock_movements (product_id, warehouse_id, type, quantity, movement_date) VALUES ((SELECT id FROM products WHERE sku='{p[1]}'), (SELECT id FROM warehouses WHERE name='{w[0]}'), 'PURCHASE', {qty}, CURRENT_TIMESTAMP - INTERVAL '{random.randint(10,30)} days');")
