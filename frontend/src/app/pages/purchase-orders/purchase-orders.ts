@@ -61,9 +61,9 @@ export class PurchaseOrders implements OnInit {
   savePO() {
     this.saving = true;
     this.formError = '';
-    const action = this.editingPO
-      ? this.poService.update(this.editingPO.id, this.formData)
-      : this.poService.create(this.formData);
+    let payload = { ...this.formData };
+    if (payload.orderDate && payload.orderDate.length === 10) payload.orderDate += 'T00:00:00';
+    const action = this.editingPO ? this.poService.update(this.editingPO.id, payload) : this.poService.create(payload);
 
     action.subscribe({
       next: () => {

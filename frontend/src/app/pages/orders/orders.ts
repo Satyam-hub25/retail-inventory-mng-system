@@ -64,9 +64,9 @@ export class Orders implements OnInit {
   saveOrder() {
     this.saving = true;
     this.formError = '';
-    const action = this.editingOrder
-      ? this.orderService.update(this.editingOrder.id, this.formData)
-      : this.orderService.create(this.formData);
+    let payload = { ...this.formData };
+    if (payload.orderDate && payload.orderDate.length === 10) payload.orderDate += 'T00:00:00';
+    const action = this.editingOrder ? this.orderService.update(this.editingOrder.id, payload) : this.orderService.create(payload);
 
     action.subscribe({
       next: () => {
