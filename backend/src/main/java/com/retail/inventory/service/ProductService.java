@@ -5,6 +5,8 @@ import com.retail.inventory.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +15,9 @@ public class ProductService {
 
     @Autowired
     private ProductRepository repository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     public List<Product> getAll() {
         return repository.findAll();
@@ -53,7 +58,12 @@ public class ProductService {
         return null;
     }
 
+    @Transactional
     public void delete(Long id) {
+        jdbcTemplate.update("DELETE FROM order_items WHERE product_id = ?", id);
+        jdbcTemplate.update("DELETE FROM purchase_order_items WHERE product_id = ?", id);
+        jdbcTemplate.update("DELETE FROM stock_movements WHERE product_id = ?", id);
+        jdbcTemplate.update("DELETE FROM inventory WHERE product_id = ?", id);
         repository.deleteById(id);
     }
 }

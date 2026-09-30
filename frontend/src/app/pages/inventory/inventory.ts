@@ -55,7 +55,7 @@ export class Inventory implements OnInit {
 
   editInventory(item: any) {
     this.editingInventory = item;
-    this.formData = { ...item };
+    this.formData = { ...item, productId: item.product?.id, warehouseId: item.warehouse?.id };
     this.formError = '';
     this.showForm = true; this.cdr.detectChanges(); }
 
@@ -77,9 +77,14 @@ export class Inventory implements OnInit {
 
     this.saving = true;
     this.formError = '';
+        const payload = {
+      ...this.formData,
+      product: { id: this.formData.productId },
+      warehouse: { id: this.formData.warehouseId }
+    };
     const action = this.editingInventory
-      ? this.inventoryService.update(this.editingInventory.id, this.formData)
-      : this.inventoryService.create(this.formData);
+      ? this.inventoryService.update(this.editingInventory.id, payload)
+      : this.inventoryService.create(payload);
 
     action.subscribe({
       next: () => {

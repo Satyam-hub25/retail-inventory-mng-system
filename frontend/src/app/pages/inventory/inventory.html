@@ -43,8 +43,8 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Product ID</th>
-          <th>Warehouse ID</th>
+          <th>Product</th>
+          <th>Warehouse</th>
           <th>Quantity</th>
           <th>Actions</th>
         </tr>
@@ -52,8 +52,8 @@
       <tbody>
         <tr *ngFor="let item of inventoryItems">
           <td>{{ item.id }}</td>
-          <td><span class="sku-badge">{{ item.productId }}</span></td>
-          <td><span class="sku-badge">{{ item.warehouseId }}</span></td>
+          <td><span class="sku-badge">{{ item.product?.name || item.product?.id }}</span></td>
+          <td><span class="sku-badge">{{ item.warehouse?.name || item.warehouse?.id }}</span></td>
           <td>
             <span class="qty-badge" [class.low]="item.quantity <= 10">
               {{ item.quantity }}
