@@ -159,3 +159,230 @@ curl -X POST http://localhost:8080/api/products \
     "message": "Email already in use"
 }
 ```
+
+## Diagrams & Architecture
+
+### Entity Relationship (ER) Diagram
+```mermaid
+erDiagram
+    USER {
+        Long id PK
+        String name
+        String email
+        String password
+        String role
+    }
+    CATEGORY ||--o{ PRODUCT : contains
+    CATEGORY {
+        Long id PK
+        String name
+        String description
+    }
+    SUPPLIER ||--o{ PRODUCT : supplies
+    SUPPLIER ||--o{ PURCHASE_ORDER : receives
+    SUPPLIER {
+        Long id PK
+        String name
+        String email
+        String phone
+        String address
+    }
+    PRODUCT ||--o{ INVENTORY : stocked_in
+    PRODUCT ||--o{ ORDER_ITEM : ordered_in
+    PRODUCT ||--o{ PURCHASE_ORDER_ITEM : purchased_in
+    PRODUCT ||--o{ STOCK_MOVEMENT : tracked_by
+    PRODUCT {
+        Long id PK
+        String name
+        String sku
+        String description
+        BigDecimal price
+        Long category_id FK
+        Long supplier_id FK
+    }
+    WAREHOUSE ||--o{ INVENTORY : stores
+    WAREHOUSE ||--o{ STOCK_MOVEMENT : logs
+    WAREHOUSE {
+        Long id PK
+        String name
+        String location
+        Integer capacity
+    }
+    INVENTORY {
+        Long id PK
+        Long product_id FK
+        Long warehouse_id FK
+        Integer quantity
+        Integer reorderLevel
+    }
+    CUSTOMER ||--o{ ORDER : places
+    CUSTOMER {
+        Long id PK
+        String name
+        String email
+        String phone
+        String address
+    }
+    ORDER ||--o{ ORDER_ITEM : contains
+    ORDER {
+        Long id PK
+        Long customer_id FK
+        LocalDateTime orderDate
+        BigDecimal totalAmount
+        String status
+    }
+    ORDER_ITEM {
+        Long id PK
+        Long order_id FK
+        Long product_id FK
+        Integer quantity
+        BigDecimal unitPrice
+    }
+    PURCHASE_ORDER ||--o{ PURCHASE_ORDER_ITEM : contains
+    PURCHASE_ORDER {
+        Long id PK
+        Long supplier_id FK
+        LocalDateTime orderDate
+        BigDecimal totalAmount
+        String status
+    }
+    PURCHASE_ORDER_ITEM {
+        Long id PK
+        Long purchase_order_id FK
+        Long product_id FK
+        Integer quantity
+        BigDecimal unitPrice
+    }
+    STOCK_MOVEMENT {
+        Long id PK
+        Long product_id FK
+        Long warehouse_id FK
+        String type
+        Integer quantity
+        LocalDateTime movementDate
+    }
+```
+
+### UML Class Diagram (Domain Model)
+```mermaid
+classDiagram
+    class Product {
+        +Long id
+        +String name
+        +String sku
+        +String description
+        +BigDecimal price
+        +Category category
+        +Supplier supplier
+    }
+    class Category {
+        +Long id
+        +String name
+        +String description
+    }
+    class Customer {
+        +Long id
+        +String name
+        +String email
+        +String phone
+        +String address
+    }
+    class Supplier {
+        +Long id
+        +String name
+        +String email
+        +String phone
+        +String address
+    }
+    class Warehouse {
+        +Long id
+        +String name
+        +String location
+        +Integer capacity
+    }
+    class Inventory {
+        +Long id
+        +Product product
+        +Warehouse warehouse
+        +Integer quantity
+        +Integer reorderLevel
+    }
+    class Order {
+        +Long id
+        +Customer customer
+        +LocalDateTime orderDate
+        +BigDecimal totalAmount
+        +String status
+        +List~OrderItem~ items
+    }
+    class OrderItem {
+        +Long id
+        +Order order
+        +Product product
+        +Integer quantity
+        +BigDecimal unitPrice
+    }
+    class StockMovement {
+        +Long id
+        +Product product
+        +Warehouse warehouse
+        +String type
+        +Integer quantity
+        +LocalDateTime movementDate
+    }
+    class PurchaseOrder {
+        +Long id
+        +Supplier supplier
+        +LocalDateTime orderDate
+        +BigDecimal totalAmount
+        +String status
+        +List~PurchaseOrderItem~ items
+    }
+    class PurchaseOrderItem {
+        +Long id
+        +PurchaseOrder purchaseOrder
+        +Product product
+        +Integer quantity
+        +BigDecimal unitPrice
+    }
+
+    Product --> Category
+    Product --> Supplier
+    Inventory --> Product
+    Inventory --> Warehouse
+    Order --> Customer
+    Order *-- OrderItem
+    OrderItem --> Product
+    PurchaseOrder --> Supplier
+    PurchaseOrder *-- PurchaseOrderItem
+    PurchaseOrderItem --> Product
+    StockMovement --> Product
+    StockMovement --> Warehouse
+```
+
+### Folder Structure
+
+```text
+retail-inventory-mng-system/
+├── backend/
+│   ├── src/main/java/com/retail/inventory/
+│   │   ├── config/          # Security, JWT, CORS, DataSeeder
+│   │   ├── controller/      # REST API Endpoints
+│   │   ├── model/           # JPA Entities (Category, Product, Order, etc.)
+│   │   ├── repository/      # Spring Data JPA Repositories
+│   │   └── service/         # Business Logic
+│   └── pom.xml              # Maven configuration
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── core/        # Interceptors, Toasts, Auth Guards
+│   │   │   ├── layout/      # Sidebar, Topbar, Main Layout
+│   │   │   ├── pages/       # Dashboard, Login, Inventory, Orders...
+│   │   │   └── services/    # Angular HTTP Services
+│   │   └── index.html
+│   └── package.json         # NPM configuration
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml        # GitHub Actions CI/CD pipeline
+└── README.md
+```
