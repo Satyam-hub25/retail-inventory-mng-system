@@ -4,6 +4,7 @@ A complete REST API for a Retail Inventory Management System built with Java Spr
 
 ## Technologies Used
 - Java 21
+- Angular
 - Spring Boot (Web, Data JPA, Validation)
 - Hibernate
 - PostgreSQL
