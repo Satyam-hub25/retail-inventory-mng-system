@@ -117,9 +117,9 @@ jobs:
             cp -r frontend-artifact/frontend frontend/html
           fi
           
-          # Export DB Password for docker-compose
+          # Export DB Password for docker compose
           export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
           
           # Stop old containers, rebuild images with new files, and start detached
-          sudo docker-compose down || true
-          sudo docker-compose up -d --build
+          sudo docker compose down || true
+          sudo docker compose up -d --build
