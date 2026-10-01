@@ -89,7 +89,7 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "backend-artifact/*.jar,frontend-artifact/**/*,docker-compose.yml,backend/Dockerfile,frontend/Dockerfile,frontend/nginx.conf"
+        source: "backend-artifact/*.jar,frontend-artifact/**/*"
         target: "/home/${{ secrets.EC2_USERNAME }}/deploy"
 
     - name: Execute deployment script on EC2
@@ -99,23 +99,12 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          cd /home/${{ secrets.EC2_USERNAME }}/deploy
+          # 1. Move frontend files to Nginx web root
+          sudo rm -rf /var/www/html/*
+          sudo cp -r /home/${{ secrets.EC2_USERNAME }}/deploy/frontend-artifact/frontend/* /var/www/html/
           
-          # Prepare the files exactly where the Dockerfiles expect them
-          # Backend expects app.jar
-          cp backend-artifact/*.jar backend/app.jar
-          
-          # Frontend expects 'html' folder
-          # Check if 'browser' folder exists (Angular 17+), otherwise just use 'frontend'
-          if [ -d "frontend-artifact/frontend/browser" ]; then
-            cp -r frontend-artifact/frontend/browser frontend/html
-          else
-            cp -r frontend-artifact/frontend frontend/html
-          fi
-          
-          # Export DB Password for docker-compose
-          export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
-          
-          # Stop old containers, rebuild images with new files, and start detached
-          docker-compose down
-          docker-compose up -d --build
+          # 2. Restart backend systemd service with the new jar
+          sudo systemctl stop retail-backend
+          rm -f /home/${{ secrets.EC2_USERNAME }}/app.jar
+          cp /home/${{ secrets.EC2_USERNAME }}/deploy/backend-artifact/*.jar /home/${{ secrets.EC2_USERNAME }}/app.jar
+          sudo systemctl start retail-backend
