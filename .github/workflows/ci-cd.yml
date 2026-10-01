@@ -1,124 +1,97 @@
 name: CI/CD Pipeline
 
-# This section tells GitHub Actions WHEN to run this workflow.
-# It will run automatically every time code is pushed to the "main" branch 
-# or when a pull request is opened against the "main" branch.
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
-# Jobs run in parallel by default, but can be chained using "needs".
 jobs:
-  
-  # JOB 1: Build the Spring Boot Backend
   build-backend:
     name: Build Backend
-    runs-on: ubuntu-latest # Runs on a fresh Ubuntu virtual machine provided by GitHub
+    runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend # All commands in this job will run inside the /backend folder
+        working-directory: ./backend
     
     steps:
-    # 1. Pulls the latest code from your repository into the runner
     - uses: actions/checkout@v4
     
-    # 2. Installs Java (JDK 21) which is required to compile your Spring Boot app
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
-        cache: maven # Caches maven dependencies to make future builds faster
+        cache: maven
         
-    # 3. Ensures the Maven wrapper script has execution permissions
     - name: Make mvnw executable
       run: chmod +x mvnw
         
-    # 4. Runs Maven to compile your code and package it into a runnable .jar file
     - name: Build with Maven
       run: ./mvnw clean package
       
-    # 5. Saves the generated .jar file as an "artifact" so we can deploy it later
     - name: Upload Backend Artifact
       uses: actions/upload-artifact@v4
       with:
         name: backend-jar
         path: backend/target/*.jar
 
-  # JOB 2: Build the Angular Frontend
   build-frontend:
     name: Build Frontend
-    runs-on: ubuntu-latest # Runs on a separate fresh Ubuntu VM
+    runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./frontend # All commands in this job run inside the /frontend folder
+        working-directory: ./frontend
         
     steps:
-    # 1. Pulls the latest code from your repository
     - uses: actions/checkout@v4
     
-    # 2. Installs Node.js version 24 (Angular 22 requires Node 24)
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '24'
+        node-version: '20'
         cache: 'npm'
         cache-dependency-path: './frontend/package-lock.json'
         
-    # 3. Clean-installs all your NPM dependencies based on package-lock.json
     - name: Install dependencies
       run: npm ci
       
-    # 4. Compiles the Angular app for production
     - name: Build Angular Project
       run: npm run build
       
-    # 5. Saves the production-ready Angular files as an artifact
     - name: Upload Frontend Artifact
       uses: actions/upload-artifact@v4
       with:
         name: frontend-dist
         path: frontend/dist/
 
-  # JOB 3: Deploy to AWS EC2
   deploy:
-    # Wait until BOTH the backend and frontend builds finish successfully before deploying
     needs: [build-backend, build-frontend]
     runs-on: ubuntu-latest
-    
-    # Only run the deployment job if this workflow was triggered by a push to the main branch
-    # (We don't want to deploy Pull Requests)
     if: github.ref == 'refs/heads/main'
     
     steps:
-    # 1. Download the backend .jar artifact we saved in Job 1
     - name: Download Backend Artifact
       uses: actions/download-artifact@v4
       with:
         name: backend-jar
         path: backend-artifact
 
-    # 2. Download the frontend HTML/JS files we saved in Job 2
     - name: Download Frontend Artifact
       uses: actions/download-artifact@v4
       with:
         name: frontend-dist
         path: frontend-artifact
 
-    # 3. Securely copy (SCP) both artifacts over to your live AWS EC2 server
-    # This requires EC2_HOST, EC2_USERNAME, and EC2_SSH_KEY to be saved in GitHub Secrets
     - name: Copy files to EC2 via SCP
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "backend-artifact/*.jar,frontend-artifact/**/*"
+        source: "backend-artifact/*.jar,frontend-artifact/**/*,docker-compose.yml,backend/Dockerfile,frontend/Dockerfile,frontend/nginx.conf"
         target: "/home/${{ secrets.EC2_USERNAME }}/deploy"
 
-    # 4. Log into the EC2 server (SSH) and run terminal commands to apply the updates
     - name: Execute deployment script on EC2
       uses: appleboy/ssh-action@master
       with:
@@ -126,12 +99,23 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          # Step A: Delete the old frontend files and replace them with the new ones
-          sudo rm -rf /var/www/html/*
-          sudo cp -r /home/${{ secrets.EC2_USERNAME }}/deploy/frontend-artifact/frontend/* /var/www/html/
+          cd /home/${{ secrets.EC2_USERNAME }}/deploy
           
-          # Step B: Stop the running Spring Boot service, replace the .jar, and start it again
-          sudo systemctl stop retail-backend
-          rm -f /home/${{ secrets.EC2_USERNAME }}/app.jar
-          cp /home/${{ secrets.EC2_USERNAME }}/deploy/backend-artifact/*.jar /home/${{ secrets.EC2_USERNAME }}/app.jar
-          sudo systemctl start retail-backend
+          # Prepare the files exactly where the Dockerfiles expect them
+          # Backend expects app.jar
+          cp backend-artifact/*.jar backend/app.jar
+          
+          # Frontend expects 'html' folder
+          # Check if 'browser' folder exists (Angular 17+), otherwise just use 'frontend'
+          if [ -d "frontend-artifact/frontend/browser" ]; then
+            cp -r frontend-artifact/frontend/browser frontend/html
+          else
+            cp -r frontend-artifact/frontend frontend/html
+          fi
+          
+          # Export DB Password for docker-compose
+          export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+          
+          # Stop old containers, rebuild images with new files, and start detached
+          docker-compose down
+          docker-compose up -d --build
