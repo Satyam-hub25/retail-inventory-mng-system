@@ -102,6 +102,9 @@ jobs:
         script: |
           cd /home/${{ secrets.EC2_USERNAME }}/deploy
           
+          # Make sure the directories exist before moving files into them
+          mkdir -p backend frontend
+          
           # Prepare the files exactly where the Dockerfiles expect them
           # Backend expects app.jar
           cp backend-artifact/*.jar backend/app.jar
@@ -118,5 +121,5 @@ jobs:
           export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
           
           # Stop old containers, rebuild images with new files, and start detached
-          docker-compose down
-          docker-compose up -d --build
+          sudo docker-compose down || true
+          sudo docker-compose up -d --build
