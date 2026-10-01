@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build-backend:
@@ -86,27 +87,41 @@ jobs:
         path: frontend-artifact
 
     - name: Copy files to EC2 via SCP
-      uses: appleboy/scp-action@master
+      uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "backend-artifact/*.jar,frontend-artifact/**/*"
+        source: "backend-artifact/*.jar,frontend-artifact/**/*,docker-compose.yml,backend/Dockerfile,frontend/Dockerfile,frontend/nginx.conf"
         target: "/home/${{ secrets.EC2_USERNAME }}/deploy"
 
     - name: Execute deployment script on EC2
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          # 1. Move frontend files to Nginx web root
-          sudo rm -rf /var/www/html/*
-          sudo cp -r /home/${{ secrets.EC2_USERNAME }}/deploy/frontend-artifact/frontend/* /var/www/html/
+          cd /home/${{ secrets.EC2_USERNAME }}/deploy
           
-          # 2. Restart backend systemd service with the new jar
-          sudo systemctl stop retail-backend
-          rm -f /home/${{ secrets.EC2_USERNAME }}/app.jar
-          cp /home/${{ secrets.EC2_USERNAME }}/deploy/backend-artifact/*.jar /home/${{ secrets.EC2_USERNAME }}/app.jar
-          sudo systemctl start retail-backend
+          # Make sure the directories exist before moving files into them
+          mkdir -p backend frontend
+          
+          # Prepare the files exactly where the Dockerfiles expect them
+          # Backend expects app.jar
+          cp backend-artifact/*.jar backend/app.jar
+          
+          # Frontend expects 'html' folder
+          # Check if 'browser' folder exists (Angular 17+), otherwise just use 'frontend'
+          if [ -d "frontend-artifact/frontend/browser" ]; then
+            cp -r frontend-artifact/frontend/browser frontend/html
+          else
+            cp -r frontend-artifact/frontend frontend/html
+          fi
+          
+          # Export DB Password for docker compose
+          export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+          
+          # Stop old containers, rebuild images with new files, and start detached
+          sudo docker compose down || true
+          sudo docker compose up -d --build
