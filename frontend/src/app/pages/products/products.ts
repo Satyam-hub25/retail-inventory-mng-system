@@ -19,7 +19,7 @@ export class Products implements OnInit {
 
   showForm = false;
   editingProduct: any = null;
-  formData: any = { name: '', description: '', sku: '', price: 0, quantity: 0 };
+  formData: any = { name: '', description: '', sku: '', price: 0, quantity: 0, imageUrl: '' };
   formError = '';
 
   // Delete confirmation
@@ -53,13 +53,13 @@ export class Products implements OnInit {
 
   openAddForm() {
     this.editingProduct = null;
-    this.formData = { name: '', description: '', sku: '', price: 0, quantity: 0 };
+    this.formData = { name: '', description: '', sku: '', price: 0, quantity: 0, imageUrl: '' };
     this.formError = '';
     this.showForm = true; this.cdr.detectChanges(); }
 
   editProduct(product: any) {
     this.editingProduct = product;
-    this.formData = { ...product };
+    this.formData = { ...product, imageUrl: product.imageUrl || '' };
     this.formError = '';
     this.showForm = true; this.cdr.detectChanges(); }
 
@@ -125,5 +125,14 @@ export class Products implements OnInit {
         this.toast.error(msg);
         this.deleteTarget = null; this.cdr.detectChanges(); }
     });
+  }
+
+  onImgError(event: Event) {
+    const img = event.target as HTMLElement;
+    img.style.display = 'none';
+    const fallback = img.nextElementSibling as HTMLElement;
+    if (fallback) {
+      fallback.style.display = 'flex';
+    }
   }
 }

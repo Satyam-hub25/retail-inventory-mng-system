@@ -17,14 +17,14 @@ INSERT INTO warehouses (name, location) VALUES
 ON CONFLICT DO NOTHING;
 
 -- Products (assuming IDs 1 and 2 for categories and suppliers)
-INSERT INTO products (name, sku, description, price, category_id, supplier_id) VALUES
-('ProBook 15"', 'TECH-LPT-001', 'High performance laptop', 1299.99, 
+INSERT INTO products (name, sku, description, price, image_url, category_id, supplier_id) VALUES
+('ProBook 15"', 'TECH-LPT-001', 'High performance laptop', 1299.99, 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=80',
  (SELECT id FROM categories WHERE name = 'Electronics'), 
  (SELECT id FROM suppliers WHERE name = 'TechCorp Inc.')),
-('Noise Cancelling Headphones', 'TECH-AUD-002', 'Over-ear wireless headphones', 199.50,
+('Noise Cancelling Headphones', 'TECH-AUD-002', 'Over-ear wireless headphones', 199.50, 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80',
  (SELECT id FROM categories WHERE name = 'Electronics'), 
  (SELECT id FROM suppliers WHERE name = 'TechCorp Inc.')),
-('Classic Cotton T-Shirt', 'APP-TSH-001', '100% cotton casual t-shirt', 24.99,
+('Classic Cotton T-Shirt', 'APP-TSH-001', '100% cotton casual t-shirt', 24.99, 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80',
  (SELECT id FROM categories WHERE name = 'Apparel'), 
  (SELECT id FROM suppliers WHERE name = 'Fashion Forward'))
 ON CONFLICT DO NOTHING;

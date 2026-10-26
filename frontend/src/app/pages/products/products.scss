@@ -9,6 +9,61 @@
   white-space: nowrap;
 }
 
+.image-cell {
+  width: 56px;
+  padding: 8px 12px;
+}
+
+.product-thumb-container {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--surface-light, #f8fafc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .product-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .product-thumb-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary, #94a3b8);
+    font-size: 18px;
+    background: var(--surface-light, #f8fafc);
+  }
+}
+
+.form-image-preview {
+  margin-top: 10px;
+  width: 100%;
+  height: 140px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--surface-light, #f8fafc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
 /* Side Panel styles */
 .panel-overlay {
   position: fixed;

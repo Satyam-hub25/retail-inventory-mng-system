@@ -42,6 +42,7 @@
     <table class="data-table">
       <thead>
         <tr>
+          <th>Image</th>
           <th>SKU</th>
           <th>Name</th>
           <th>Description</th>
@@ -52,6 +53,14 @@
       </thead>
       <tbody>
         <tr *ngFor="let product of products">
+          <td class="image-cell">
+            <div class="product-thumb-container">
+              <img *ngIf="product.imageUrl" [src]="product.imageUrl" [alt]="product.name" class="product-thumb" (error)="onImgError($event)">
+              <div class="product-thumb-fallback" [style.display]="product.imageUrl ? 'none' : 'flex'">
+                <i class="fas fa-box"></i>
+              </div>
+            </div>
+          </td>
           <td><span class="sku-badge">{{ product.sku }}</span></td>
           <td><strong>{{ product.name }}</strong></td>
           <td class="desc-cell">{{ product.description || '—' }}</td>
@@ -111,6 +120,17 @@
         <div class="form-group">
           <label>SKU <span class="req">*</span></label>
           <input type="text" [(ngModel)]="formData.sku" name="sku" class="form-control" placeholder="e.g. WM-001" required>
+        </div>
+
+        <div class="form-group">
+          <label>Product Image URL</label>
+          <input type="url" [(ngModel)]="formData.imageUrl" name="imageUrl" class="form-control" placeholder="https://images.unsplash.com/...">
+          <div class="form-image-preview" *ngIf="formData.imageUrl">
+            <img [src]="formData.imageUrl" alt="Preview" (error)="onImgError($event)">
+            <div class="product-thumb-fallback" style="display: none;">
+              <i class="fas fa-image"></i>
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
