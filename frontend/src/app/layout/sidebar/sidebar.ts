@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Auth } from '../../services/auth';
@@ -14,6 +14,8 @@ export class Sidebar implements OnInit {
   private authService = inject(Auth);
   private router = inject(Router);
 
+  @Output() toggleSidebar = new EventEmitter<void>();
+
   role: string = 'USER';
 
   ngOnInit() {
@@ -24,6 +26,10 @@ export class Sidebar implements OnInit {
 
   hasAccess(allowedRoles: string[]): boolean {
     return allowedRoles.includes(this.role);
+  }
+
+  onToggleSidebar() {
+    this.toggleSidebar.emit();
   }
 
   logout() {

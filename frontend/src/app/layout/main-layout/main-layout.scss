@@ -13,6 +13,11 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.layout-container.sidebar-hidden .sidebar {
+  margin-left: -260px;
 }
 
 .main-content {
@@ -21,6 +26,7 @@
   flex-direction: column;
   overflow: hidden;
   min-width: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .page-content {

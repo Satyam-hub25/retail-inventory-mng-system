@@ -1,11 +1,11 @@
 <div class="topbar">
   <div class="topbar-left">
-    <!-- Removed search bar since it was non-functional -->
+    <button class="toggle-sidebar-btn" (click)="onToggleSidebar()" [title]="isSidebarHidden ? 'Show Sidebar' : 'Hide Sidebar'">
+      <i class="fas" [ngClass]="isSidebarHidden ? 'fa-bars' : 'fa-indent'"></i>
+    </button>
   </div>
 
   <div class="topbar-right">
-    <!-- Removed notification icon since it was non-functional -->
-
     <div class="user-chip">
       <div class="avatar">{{ userInitials }}</div>
       <div class="user-details">

@@ -13,41 +13,31 @@
   display: flex;
   align-items: center;
   gap: 12px;
-
-  .page-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--nav-text);
-  }
 }
 
-.search-bar {
+.toggle-sidebar-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--surface-light, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: var(--surface-light);
-  border: 1px solid var(--border-color);
-  padding: 8px 14px;
-  border-radius: 8px;
-  width: 300px;
-  transition: border-color 0.2s;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-primary, #ffffff);
+  font-size: 15px;
+  transition: all 0.2s ease;
 
-  &:focus-within {
-    border-color: var(--primary-color);
+  &:hover {
+    background: var(--surface-hover, rgba(255, 255, 255, 0.1));
+    color: var(--primary-color, #f97316);
+    border-color: var(--primary-color, #f97316);
+    transform: scale(1.03);
   }
 
-  i { color: var(--text-secondary); font-size: 13px; }
-
-  input {
-    border: none;
-    background: transparent;
-    width: 100%;
-    font-size: 13px;
-    outline: none;
-    font-family: 'Inter', sans-serif;
-    color: var(--text-primary);
-
-    &::placeholder { color: var(--text-muted); }
+  &:active {
+    transform: scale(0.97);
   }
 }
 
@@ -55,37 +45,6 @@
   display: flex;
   align-items: center;
   gap: 16px;
-}
-
-.notif-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: var(--surface-light);
-  border: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-size: 15px;
-  transition: all 0.15s;
-  position: relative;
-
-  &:hover {
-    background: var(--surface-hover);
-    color: var(--text-primary); }
-
-  .notif-dot {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 7px;
-    height: 7px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    border: 1.5px solid var(--bg-card);
-  }
 }
 
 .user-chip {
@@ -121,7 +80,9 @@
     .user-name {
       font-size: 13px;
       font-weight: 600;
-      color: var(--text-primary); line-height: 1.2; }
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
 
     .user-role {
       font-size: 11px;

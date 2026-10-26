@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Auth } from '../../services/auth';
 
@@ -6,24 +6,33 @@ import { Auth } from '../../services/auth';
   selector: 'app-topbar',
   standalone: true,
   imports: [CommonModule],
-  styleUrl: './topbar.scss',
   templateUrl: './topbar.html',
+  styleUrl: './topbar.scss'
 })
 export class Topbar implements OnInit {
-  currentUser: any = null;
-  userInitials = 'U';
+  private authService = inject(Auth);
 
-  constructor(private authService: Auth) {}
+  @Input() isSidebarHidden = false;
+  @Output() toggleSidebar = new EventEmitter<void>();
+
+  currentUser: any = null;
+  userInitials: string = 'U';
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       if (user?.name) {
-        const parts = user.name.trim().split(' ');
-        this.userInitials = parts.length >= 2
-          ? (parts[0][0] + parts[1][0]).toUpperCase()
-          : parts[0][0].toUpperCase();
+        this.userInitials = user.name
+          .split(' ')
+          .map((n: string) => n[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2);
       }
     });
+  }
+
+  onToggleSidebar() {
+    this.toggleSidebar.emit();
   }
 }
